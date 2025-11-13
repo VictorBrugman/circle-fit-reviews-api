@@ -1,10 +1,10 @@
 export default async function handler(req, res) {
   const apiKey = process.env.GOOGLE_MAPS_KEY;
 
-  // Voeg hier zoveel locaties toe als je wilt
+  // ✅ Voeg hier je locaties toe
   const placeIds = {
-    leiden: "ChIJI4ITI8zvxkcR52ComXVmFIg",
-    denbosch: "ChIJl4ITl8zvxkcR52ComXVmFIg"
+    leiden: "ChIJsz_tCDPHxUcRFnwNK7gSwrc",
+    almelo: "ChIJ2xHuQjsGuEcRDv_DWji68EY",
   };
 
   const results = [];
@@ -20,8 +20,10 @@ export default async function handler(req, res) {
           city,
           name: data.result.name,
           rating: data.result.rating,
-          reviews: data.result.reviews || []
+          reviews: data.result.reviews || [],
         });
+      } else {
+        console.warn(`No result found for ${city}:`, data.status);
       }
     }
 

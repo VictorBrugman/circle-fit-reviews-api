@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   const apiKey = process.env.GOOGLE_MAPS_KEY;
 
-  // ✅ Voeg hier je locaties toe (eenvoudig uitbreidbaar)
+  // ✅ Voeg hier je Circle Fit locaties toe
   const placeIds = {
     leiden: "ChIJsz_tCDPHxUcRFnwNK7gSwrc",
     almelo: "ChIJ2xHuQjsGuEcRDv_DWji68EY",
@@ -20,16 +20,12 @@ export default async function handler(req, res) {
       });
       const data = await response.json();
 
-      if (data && (data.reviews || data.rating)) {
-        results.push({
-          city,
-          name: data.displayName?.text || "Onbekend",
-          rating: data.rating || "N/A",
-          reviews: data.reviews || [],
-        });
-      } else {
-        console.warn(`Geen data gevonden voor ${city}`, data);
-      }
+      results.push({
+        city,
+        name: data.displayName?.text || "Onbekend",
+        rating: data.rating || "N/A",
+        reviews: data.reviews || [],
+      });
     }
 
     res.status(200).json(results);

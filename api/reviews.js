@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   const apiKey = process.env.GOOGLE_MAPS_KEY;
 
-  // ✅ Voeg hier je locaties toe
+  // ✅ Voeg hier je locaties toe (eenvoudig uitbreidbaar)
   const placeIds = {
     leiden: "ChIJsz_tCDPHxUcRFnwNK7gSwrc",
     almelo: "ChIJ2xHuQjsGuEcRDv_DWji68EY",
@@ -11,25 +11,30 @@ export default async function handler(req, res) {
 
   try {
     for (const [city, id] of Object.entries(placeIds)) {
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${id}&fields=name,rating,reviews&key=${apiKey}`;
-      const response = await fetch(url);
+      const url = `https://places.googleapis.com/v1/places/${id}?fields=displayName,rating,reviews&key=${apiKey}`;
+      const response = await fetch(url, {
+        headers: {
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": "displayName,rating,reviews",
+        },
+      });
       const data = await response.json();
 
-      if (data.result) {
+      if (data && (data.reviews || data.rating)) {
         results.push({
           city,
-          name: data.result.name,
-          rating: data.result.rating,
-          reviews: data.result.reviews || [],
+          name: data.displayName?.text || "Onbekend",
+          rating: data.rating || "N/A",
+          reviews: data.reviews || [],
         });
       } else {
-        console.warn(`No result found for ${city}:`, data.status);
+        console.warn(`Geen data gevonden voor ${city}`, data);
       }
     }
 
     res.status(200).json(results);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error fetching Google reviews" });
+    res.status(500).json({ error: "Fout bij ophalen van Google reviews" });
   }
 }
